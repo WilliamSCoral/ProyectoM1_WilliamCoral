@@ -8,6 +8,7 @@ let cantidadColores = 6;
 // Array que guarda los colores actuales
 // Cada color es un objeto con su valor HSL y si está bloqueado
 let coloresActuales = [];
+let colorSeleccionado = -1;
 
 // Formato de copia: 'hex' o 'hsl'
 let formatoCopia = 'hex';
@@ -114,7 +115,8 @@ function dibujarRueda() {
   svg.innerHTML = '';
 
   const radioExterno = 1.0;
-  const radioInterno = 0.4;
+  const radioInterno = 0.25;
+  const radioExternoSeleccionado = 1.08;
   const anguloPorColor = 360 / cantidadColores;
 
   coloresActuales.forEach((color, index) => {
@@ -125,23 +127,36 @@ function dibujarRueda() {
     const anguloFin = anguloInicio + anguloPorColor;
     const anguloMedio = anguloInicio + anguloPorColor / 2;
 
-    // Crea el segmento de color
+    // Si está seleccionado usa radio más grande
+    const radioActual = index === colorSeleccionado
+      ? radioExternoSeleccionado
+      : radioExterno;
+
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', crearSegmento(anguloInicio, anguloFin, radioExterno, radioInterno));
+    path.setAttribute('d', crearSegmento(anguloInicio, anguloFin, radioActual, radioInterno));
     path.setAttribute('fill', `hsl(${h}, ${s}%, ${l}%)`);
     path.setAttribute('stroke', '#111');
     path.setAttribute('stroke-width', '0.02');
+    path.style.cursor = 'pointer';
+    path.style.transition = 'all 0.2s ease';
+
+    // Clic en el segmento
+    path.addEventListener('click', () => {
+      // Si ya estaba seleccionado, deselecciona
+      colorSeleccionado = colorSeleccionado === index ? -1 : index;
+      dibujarRueda();
+      dibujarListaColores();
+      copiarColor(h, s, l);
+    });
+
     svg.appendChild(path);
 
-    // Calcula la posición del texto en el segmento
-    const radioTexto = (radioExterno + radioInterno) / 2;
+    const radioTexto = (radioActual + radioInterno) / 2;
     const posTexto = polarACartesiano(anguloMedio, radioTexto);
 
-    // Grupo de texto con HEX y HSL
     const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     grupo.setAttribute('transform', `translate(${posTexto.x}, ${posTexto.y}) rotate(${anguloMedio})`);
 
-    // Texto HEX
     const textoHex = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     textoHex.setAttribute('text-anchor', 'middle');
     textoHex.setAttribute('font-size', '0.09');
@@ -150,7 +165,6 @@ function dibujarRueda() {
     textoHex.setAttribute('dy', '-0.05');
     textoHex.textContent = hex;
 
-    // Texto HSL
     const textoHsl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     textoHsl.setAttribute('text-anchor', 'middle');
     textoHsl.setAttribute('font-size', '0.07');
@@ -163,7 +177,6 @@ function dibujarRueda() {
     svg.appendChild(grupo);
   });
 
-  // Círculo negro del centro
   const circulo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   circulo.setAttribute('cx', '0');
   circulo.setAttribute('cy', '0');
@@ -188,6 +201,10 @@ function dibujarListaColores() {
     item.classList.add('lista-colores__item');
     // Cursor pointer para indicar que es clickeable
     item.style.cursor = 'pointer';
+
+    if (index === colorSeleccionado) {
+      item.classList.add('lista-colores__item--seleccionado');
+    }
 
     const muestra = document.createElement('div');
     muestra.classList.add('lista-colores__muestra');

@@ -270,3 +270,10 @@ body {
   text-align: center;
   margin-top: 20px;
 }
+
+/* Item seleccionado en la lista de colores */
+.lista-colores__item--seleccionado {
+  transform: scale(1.08);
+  outline: 2px solid #ffffff;
+  transition: transform 0.2s ease;
+}
