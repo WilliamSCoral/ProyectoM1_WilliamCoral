@@ -173,9 +173,56 @@ function dibujarRueda() {
 }
 
 // ============================================
+// DIBUJAR LISTA DE COLORES CON CANDADOS
+// ============================================
+
+function dibujarListaColores() {
+  const lista = document.querySelector('.lista-colores');
+  lista.innerHTML = '';
+
+  coloresActuales.forEach((color, index) => {
+    const { h, s, l } = color.hsl;
+    const hex = hslAHex(h, s, l);
+
+    // Crea el elemento li
+    const item = document.createElement('li');
+    item.classList.add('lista-colores__item');
+
+    // Muestra del color
+    const muestra = document.createElement('div');
+    muestra.classList.add('lista-colores__muestra');
+    muestra.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
+
+    // Texto del color (HEX o HSL según el modo)
+    const texto = document.createElement('span');
+    texto.classList.add('lista-colores__hex');
+    texto.textContent = formatoCopia === 'hex'
+      ? hex
+      : `hsl(${h}, ${s}%, ${l}%)`;
+
+    // Botón candado
+    const candado = document.createElement('button');
+    candado.classList.add('lista-colores__candado');
+    candado.textContent = color.bloqueado ? '🔒' : '🔓';
+
+    // Al hacer clic en el candado, bloquea o desbloquea el color
+    candado.addEventListener('click', () => {
+      coloresActuales[index].bloqueado = !coloresActuales[index].bloqueado;
+      dibujarListaColores();
+    });
+
+    item.appendChild(muestra);
+    item.appendChild(texto);
+    item.appendChild(candado);
+    lista.appendChild(item);
+  });
+}
+
+// ============================================
 // INICIO
 // ============================================
 
 generarPaleta();
 dibujarRueda();
+dibujarListaColores();
 console.log('Colores generados:', coloresActuales);
