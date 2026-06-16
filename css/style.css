@@ -43,6 +43,8 @@ body {
   background-color: #1a1a1a;
   border-radius: 12px;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Panel derecho tiene ancho fijo */
@@ -192,4 +194,71 @@ body {
 .rueda {
   width: min(420px, 100%);
   height: min(420px, 100%);
+}
+
+/* PANEL DE PALETAS GUARDADAS */
+.panel-guardadas__titulo {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #aaaaaa;
+  margin-bottom: 16px;
+}
+
+/* LISTA DE PALETAS GUARDADAS */
+.lista-guardadas {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lista-guardadas__item {
+  background-color: #222222;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.lista-guardadas__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.lista-guardadas__nombre {
+  font-size: 13px;
+  color: #aaaaaa;
+}
+
+.lista-guardadas__acciones {
+  display: flex;
+  gap: 6px;
+}
+
+.boton-copiar-paleta,
+.boton-eliminar-paleta {
+  background-color: #2e2e2e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.boton-copiar-paleta:hover {
+  background-color: #3a3a3a;
+}
+
+.boton-eliminar-paleta:hover {
+  background-color: #5a1a1a;
+}
+
+/* MUESTRAS DE COLORES DE LA PALETA GUARDADA */
+.lista-guardadas__muestras {
+  display: flex;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
 }
