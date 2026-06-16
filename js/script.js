@@ -1,0 +1,181 @@
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
+
+// Cantidad de colores actual en la paleta
+let cantidadColores = 6;
+
+// Array que guarda los colores actuales
+// Cada color es un objeto con su valor HSL y si está bloqueado
+let coloresActuales = [];
+
+// Formato de copia: 'hex' o 'hsl'
+let formatoCopia = 'hex';
+
+// Array que guarda las paletas guardadas
+let paletasGuardadas = [];
+
+
+// ============================================
+// FUNCIONES DE COLOR
+// ============================================
+
+// Genera un número aleatorio entre min y max
+function numeroAleatorio(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Genera un color aleatorio en formato HSL
+// HSL = Hue (tono 0-360), Saturation (saturación 0-100), Lightness (luminosidad 0-100)
+function generarColorHSL() {
+  const h = numeroAleatorio(0, 360);
+  const s = numeroAleatorio(40, 90);
+  const l = numeroAleatorio(35, 65);
+  return { h, s, l };
+}
+
+// Convierte un color HSL a HEX
+function hslAHex(h, s, l) {
+  s /= 100;
+  l /= 100;
+
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+
+  const r = Math.round(f(0) * 255);
+  const g = Math.round(f(8) * 255);
+  const b = Math.round(f(4) * 255);
+
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+// Genera todos los colores de la paleta
+// Si un color está bloqueado, lo mantiene igual
+function generarPaleta() {
+  if (coloresActuales.length === 0) {
+    coloresActuales = Array.from({ length: cantidadColores }, () => ({
+      hsl: generarColorHSL(),
+      bloqueado: false
+    }));
+    return;
+  }
+
+  if (coloresActuales.length < cantidadColores) {
+    while (coloresActuales.length < cantidadColores) {
+      coloresActuales.push({ hsl: generarColorHSL(), bloqueado: false });
+    }
+  } else if (coloresActuales.length > cantidadColores) {
+    coloresActuales = coloresActuales.slice(0, cantidadColores);
+  }
+
+  coloresActuales = coloresActuales.map(color => {
+    if (color.bloqueado) return color;
+    return { hsl: generarColorHSL(), bloqueado: false };
+  });
+}
+
+
+// ============================================
+// DIBUJAR RUEDA SVG
+// ============================================
+
+// Convierte coordenadas polares a cartesianas
+// Necesario para calcular los puntos de cada segmento de la rueda
+function polarACartesiano(angulo, radio) {
+  const rad = (angulo - 90) * (Math.PI / 180);
+  return {
+    x: radio * Math.cos(rad),
+    y: radio * Math.sin(rad)
+  };
+}
+
+// Crea el path SVG de un segmento de la rueda
+function crearSegmento(anguloInicio, anguloFin, radioExterno, radioInterno) {
+  const inicio = polarACartesiano(anguloInicio, radioExterno);
+  const fin = polarACartesiano(anguloFin, radioExterno);
+  const inicioInterno = polarACartesiano(anguloFin, radioInterno);
+  const finInterno = polarACartesiano(anguloInicio, radioInterno);
+
+  const arcoGrande = anguloFin - anguloInicio > 180 ? 1 : 0;
+
+  return [
+    `M ${inicio.x} ${inicio.y}`,
+    `A ${radioExterno} ${radioExterno} 0 ${arcoGrande} 1 ${fin.x} ${fin.y}`,
+    `L ${inicioInterno.x} ${inicioInterno.y}`,
+    `A ${radioInterno} ${radioInterno} 0 ${arcoGrande} 0 ${finInterno.x} ${finInterno.y}`,
+    'Z'
+  ].join(' ');
+}
+
+// Dibuja la rueda completa con todos los colores
+function dibujarRueda() {
+  const svg = document.querySelector('.rueda');
+  svg.innerHTML = '';
+
+  const radioExterno = 1.0;
+  const radioInterno = 0.4;
+  const anguloPorColor = 360 / cantidadColores;
+
+  coloresActuales.forEach((color, index) => {
+    const { h, s, l } = color.hsl;
+    const hex = hslAHex(h, s, l);
+
+    const anguloInicio = index * anguloPorColor;
+    const anguloFin = anguloInicio + anguloPorColor;
+    const anguloMedio = anguloInicio + anguloPorColor / 2;
+
+    // Crea el segmento de color
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', crearSegmento(anguloInicio, anguloFin, radioExterno, radioInterno));
+    path.setAttribute('fill', `hsl(${h}, ${s}%, ${l}%)`);
+    path.setAttribute('stroke', '#111');
+    path.setAttribute('stroke-width', '0.02');
+    svg.appendChild(path);
+
+    // Calcula la posición del texto en el segmento
+    const radioTexto = (radioExterno + radioInterno) / 2;
+    const posTexto = polarACartesiano(anguloMedio, radioTexto);
+
+    // Grupo de texto con HEX y HSL
+    const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    grupo.setAttribute('transform', `translate(${posTexto.x}, ${posTexto.y}) rotate(${anguloMedio})`);
+
+    // Texto HEX
+    const textoHex = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textoHex.setAttribute('text-anchor', 'middle');
+    textoHex.setAttribute('font-size', '0.09');
+    textoHex.setAttribute('font-weight', 'bold');
+    textoHex.setAttribute('fill', '#ffffff');
+    textoHex.setAttribute('dy', '-0.05');
+    textoHex.textContent = hex;
+
+    // Texto HSL
+    const textoHsl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textoHsl.setAttribute('text-anchor', 'middle');
+    textoHsl.setAttribute('font-size', '0.07');
+    textoHsl.setAttribute('fill', 'rgba(255,255,255,0.8)');
+    textoHsl.setAttribute('dy', '0.07');
+    textoHsl.textContent = `hsl(${h},${s}%,${l}%)`;
+
+    grupo.appendChild(textoHex);
+    grupo.appendChild(textoHsl);
+    svg.appendChild(grupo);
+  });
+
+  // Círculo negro del centro
+  const circulo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circulo.setAttribute('cx', '0');
+  circulo.setAttribute('cy', '0');
+  circulo.setAttribute('r', radioInterno.toString());
+  circulo.setAttribute('fill', '#111111');
+  svg.appendChild(circulo);
+}
+
+// ============================================
+// INICIO
+// ============================================
+
+generarPaleta();
+dibujarRueda();
+console.log('Colores generados:', coloresActuales);
