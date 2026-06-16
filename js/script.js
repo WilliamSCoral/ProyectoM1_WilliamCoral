@@ -219,6 +219,54 @@ function dibujarListaColores() {
 }
 
 // ============================================
+// EVENTOS DE CONTROLES
+// ============================================
+
+// Referencia al selector de cantidad de colores
+const selectorCantidad = document.querySelector('.barra-controles__selector');
+
+// Referencia al botón girar
+const botonGirar = document.querySelector('.boton-girar');
+
+// Cuando cambia el selector de cantidad de colores
+selectorCantidad.addEventListener('change', () => {
+  // Extrae el número del texto "X colores"
+  const nuevaCantidad = parseInt(selectorCantidad.value);
+
+  // Cuenta cuántos colores están bloqueados actualmente
+  const bloqueados = coloresActuales.filter(c => c.bloqueado).length;
+
+  // No permite cambiar a una cantidad menor o igual a los bloqueados
+  if (nuevaCantidad <= bloqueados) {
+    alert(`Tienes ${bloqueados} colores bloqueados. Desbloquea algunos antes de reducir la paleta.`);
+    // Regresa el selector al valor anterior
+    selectorCantidad.value = `${cantidadColores} colores`;
+    return;
+  }
+
+  cantidadColores = nuevaCantidad;
+  generarPaleta();
+  dibujarRueda();
+  dibujarListaColores();
+});
+
+// Cuando se hace clic en el botón girar
+botonGirar.addEventListener('click', () => {
+  // Cuenta cuántos colores están bloqueados
+  const bloqueados = coloresActuales.filter(c => c.bloqueado).length;
+
+  // No permite girar si todos los colores están bloqueados
+  if (bloqueados === cantidadColores) {
+    alert('Todos los colores están bloqueados. Desbloquea al menos uno para girar.');
+    return;
+  }
+
+  generarPaleta();
+  dibujarRueda();
+  dibujarListaColores();
+});
+
+// ============================================
 // INICIO
 // ============================================
 
