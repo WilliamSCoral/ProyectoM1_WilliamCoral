@@ -184,31 +184,35 @@ function dibujarListaColores() {
     const { h, s, l } = color.hsl;
     const hex = hslAHex(h, s, l);
 
-    // Crea el elemento li
     const item = document.createElement('li');
     item.classList.add('lista-colores__item');
+    // Cursor pointer para indicar que es clickeable
+    item.style.cursor = 'pointer';
 
-    // Muestra del color
     const muestra = document.createElement('div');
     muestra.classList.add('lista-colores__muestra');
     muestra.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
 
-    // Texto del color (HEX o HSL según el modo)
     const texto = document.createElement('span');
     texto.classList.add('lista-colores__hex');
     texto.textContent = formatoCopia === 'hex'
       ? hex
       : `hsl(${h}, ${s}%, ${l}%)`;
 
-    // Botón candado
     const candado = document.createElement('button');
     candado.classList.add('lista-colores__candado');
     candado.textContent = color.bloqueado ? '🔒' : '🔓';
 
-    // Al hacer clic en el candado, bloquea o desbloquea el color
-    candado.addEventListener('click', () => {
+    // Clic en candado — bloquea o desbloquea
+    candado.addEventListener('click', (e) => {
+      e.stopPropagation(); // Evita que el clic llegue al item
       coloresActuales[index].bloqueado = !coloresActuales[index].bloqueado;
       dibujarListaColores();
+    });
+
+    // Clic en el item — copia el color
+    item.addEventListener('click', () => {
+      copiarColor(h, s, l);
     });
 
     item.appendChild(muestra);
@@ -361,6 +365,59 @@ botonGuardar.addEventListener('click', () => {
   paletasGuardadas.push(copia);
   dibujarPaletasGuardadas();
 });
+
+
+// ============================================
+// INTERRUPTOR HEX / HSL
+// ============================================
+
+// Referencias a los botones del alternador
+const botonHex = document.querySelectorAll('.alternador-copia__boton')[0];
+const botonHsl = document.querySelectorAll('.alternador-copia__boton')[1];
+
+// Cambia el formato de copia y actualiza la interfaz
+function cambiarFormato(formato) {
+  formatoCopia = formato;
+
+  // Actualiza el estilo activo de los botones
+  if (formato === 'hex') {
+    botonHex.classList.add('alternador-copia__boton--activo');
+    botonHsl.classList.remove('alternador-copia__boton--activo');
+  } else {
+    botonHsl.classList.add('alternador-copia__boton--activo');
+    botonHex.classList.remove('alternador-copia__boton--activo');
+  }
+
+  // Actualiza la lista de colores para mostrar el formato correcto
+  dibujarListaColores();
+}
+
+// Eventos de los botones
+botonHex.addEventListener('click', () => cambiarFormato('hex'));
+botonHsl.addEventListener('click', () => cambiarFormato('hsl'));
+
+
+// ============================================
+// COPIAR COLOR AL HACER CLIC EN LA LISTA
+// ============================================
+
+// Copia un color individual al portapapeles al hacer clic en el item
+function copiarColor(h, s, l) {
+  const texto = formatoCopia === 'hex'
+    ? hslAHex(h, s, l)
+    : `hsl(${h}, ${s}%, ${l}%)`;
+
+  const area = document.createElement('textarea');
+  area.value = texto;
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
+  document.body.appendChild(area);
+  area.select();
+  document.execCommand('copy');
+  document.body.removeChild(area);
+
+  alert(`Color copiado: ${texto}`);
+}
 
 // ============================================
 // INICIO
