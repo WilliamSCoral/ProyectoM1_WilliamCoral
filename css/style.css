@@ -262,3 +262,11 @@ body {
   border-radius: 6px;
   overflow: hidden;
 }
+
+/* Mensaje cuando no hay paletas guardadas */
+.lista-guardadas__vacia {
+  font-size: 13px;
+  color: #555555;
+  text-align: center;
+  margin-top: 20px;
+}

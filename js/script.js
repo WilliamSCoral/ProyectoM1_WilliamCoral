@@ -267,6 +267,102 @@ botonGirar.addEventListener('click', () => {
 });
 
 // ============================================
+// PALETAS GUARDADAS
+// ============================================
+
+// Referencia al botón guardar y a la lista de guardadas
+const botonGuardar = document.querySelector('.boton-guardar');
+const listaGuardadas = document.querySelector('.lista-guardadas');
+
+// Dibuja la lista de paletas guardadas
+function dibujarPaletasGuardadas() {
+  listaGuardadas.innerHTML = '';
+
+  if (paletasGuardadas.length === 0) {
+    listaGuardadas.innerHTML = '<p class="lista-guardadas__vacia">No hay paletas guardadas</p>';
+    return;
+  }
+
+  paletasGuardadas.forEach((paleta, index) => {
+    const item = document.createElement('li');
+    item.classList.add('lista-guardadas__item');
+
+    // Encabezado con nombre y botones
+    const encabezado = document.createElement('div');
+    encabezado.classList.add('lista-guardadas__encabezado');
+
+    const nombre = document.createElement('span');
+    nombre.classList.add('lista-guardadas__nombre');
+    nombre.textContent = `Paleta (${paleta.length} colores)`;
+
+    const acciones = document.createElement('div');
+    acciones.classList.add('lista-guardadas__acciones');
+
+    // Botón copiar
+    const botonCopiar = document.createElement('button');
+    botonCopiar.classList.add('boton-copiar-paleta');
+    botonCopiar.textContent = '📋';
+    botonCopiar.addEventListener('click', () => copiarPaleta(paleta));
+
+    // Botón eliminar
+    const botonEliminar = document.createElement('button');
+    botonEliminar.classList.add('boton-eliminar-paleta');
+    botonEliminar.textContent = '🗑️';
+    botonEliminar.addEventListener('click', () => {
+      paletasGuardadas.splice(index, 1);
+      dibujarPaletasGuardadas();
+    });
+
+    acciones.appendChild(botonCopiar);
+    acciones.appendChild(botonEliminar);
+    encabezado.appendChild(nombre);
+    encabezado.appendChild(acciones);
+
+    // Muestras de colores
+    const muestras = document.createElement('div');
+    muestras.classList.add('lista-guardadas__muestras');
+
+    paleta.forEach(color => {
+      const { h, s, l } = color.hsl;
+      const muestra = document.createElement('div');
+      muestra.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
+      muestra.style.flex = '1';
+      muestras.appendChild(muestra);
+    });
+
+    item.appendChild(encabezado);
+    item.appendChild(muestras);
+    listaGuardadas.appendChild(item);
+  });
+}
+
+// Copia los colores de una paleta al portapapeles
+function copiarPaleta(paleta) {
+  const textos = paleta.map(color => {
+    const { h, s, l } = color.hsl;
+    return formatoCopia === 'hex'
+      ? hslAHex(h, s, l)
+      : `hsl(${h}, ${s}%, ${l}%)`;
+  });
+
+  navigator.clipboard.writeText(textos.join(', '))
+    .then(() => alert('Paleta copiada al portapapeles'))
+    .catch(() => alert('No se pudo copiar'));
+}
+
+// Guarda la paleta actual
+botonGuardar.addEventListener('click', () => {
+  // Guarda una copia profunda de los colores actuales
+  const copia = coloresActuales.map(color => ({
+    hsl: { ...color.hsl },
+    bloqueado: false
+  }));
+
+  paletasGuardadas.push(copia);
+  dibujarPaletasGuardadas();
+});
+
+// ============================================
 // INICIO
 // ============================================
 
