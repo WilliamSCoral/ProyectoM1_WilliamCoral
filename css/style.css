@@ -1,38 +1,35 @@
+/* ============================================
+   VARIABLES GLOBALES DE COLOR
+   Usadas para los temas HEX (azul) y HSL (rosado)
+   del alternador de formato de copia.
+   ============================================ */
 :root {
-  --color-hex: #00bcd4; /* Azul actual */
-  --color-hsl: #e91e8c; /* Rosado deseado */
+  --color-hex: #00bcd4;
+  --color-hsl: #e91e8c;
 }
 
-/* Aplicamos el color basado en la clase del body */
-body.tema-hex {
-  --color-activo: var(--color-hex);
-}
+/* Clase aplicada al body según el formato activo */
+body.tema-hex { --color-activo: var(--color-hex); }
+body.tema-hsl { --color-activo: var(--color-hsl); }
 
-body.tema-hsl {
-  --color-activo: var(--color-hsl);
-}
 
-/* Ahora, actualiza tus clases existentes para usar --color-activo */
-.alternador-copia__boton--activo-hex {
-  background-color: var(--color-hex);
-  color: #ffffff;
-}
-
-.alternador-copia__boton--activo-hsl {
-  background-color: var(--color-hsl);
-  color: #ffffff;
-}
-
-/* Reset básico */
-*,
-*::before,
-*::after {
+/* ============================================
+   RESET BÁSICO
+   Elimina márgenes y paddings por defecto
+   y usa box-sizing consistente en todos los elementos.
+   ============================================ */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* Fondo negro general */
+
+/* ============================================
+   BASE
+   ============================================ */
+
+/* Fondo oscuro y tipografía base */
 body {
   background-color: #0f0f0f;
   color: #ffffff;
@@ -40,7 +37,7 @@ body {
   height: 100vh;
 }
 
-/* Contenedor principal de toda la página */
+/* Contenedor principal: columna vertical que ocupa toda la ventana */
 .pagina {
   height: 100vh;
   display: flex;
@@ -48,7 +45,7 @@ body {
   padding: 20px;
 }
 
-/* Título superior */
+/* Título superior centrado con mayúsculas y espaciado */
 .pagina__titulo {
   text-align: center;
   text-transform: uppercase;
@@ -57,14 +54,19 @@ body {
   margin-bottom: 20px;
 }
 
-/* Divide la página en dos: sección principal y panel derecho */
+/* Divide el área principal en dos columnas: sección principal y panel guardadas */
 .pagina__contenido {
   display: flex;
   flex: 1;
   gap: 25px;
 }
 
-/* Sección izquierda ocupa todo el espacio disponible */
+
+/* ============================================
+   SECCIÓN PRINCIPAL (columna izquierda)
+   ============================================ */
+
+/* Ocupa el 75% del ancho disponible */
 .seccion-principal {
   flex: 1;
   background-color: #1a1a1a;
@@ -75,15 +77,13 @@ body {
   width: 75%;
 }
 
-/* Panel derecho tiene ancho fijo */
-.panel-guardadas {
-  width: 25%;
-  background-color: #1a1a1a;
-  border-radius: 12px;
-  padding: 20px;
-}
 
-/* BARRA DE CONTROLES */
+/* ============================================
+   BARRA DE CONTROLES
+   Fila horizontal con selector de cantidad,
+   alternador HEX/HSL y botones de acción.
+   ============================================ */
+
 .barra-controles {
   display: flex;
   align-items: center;
@@ -94,12 +94,14 @@ body {
   margin-bottom: 20px;
 }
 
+/* Etiqueta descriptiva de cada control */
 .barra-controles__etiqueta {
   font-size: 16px;
   color: #aaaaaa;
   margin-right: 8px;
 }
 
+/* Selector desplegable de cantidad de colores */
 .barra-controles__selector {
   background-color: #2e2e2e;
   color: #ffffff;
@@ -110,12 +112,14 @@ body {
   cursor: pointer;
 }
 
+/* Grupos internos de la barra (tamaño y modo copia) */
 .barra-controles__tamano,
 .barra-controles__modo-copia {
   display: flex;
   align-items: center;
 }
 
+/* Botones de acción (girar y guardar) empujados al extremo derecho */
 .barra-controles__acciones {
   display: flex;
   align-items: center;
@@ -123,7 +127,13 @@ body {
   margin-left: auto;
 }
 
-/* BOTONES HEX / HSL */
+
+/* ============================================
+   BOTONES HEX / HSL
+   Grupo de dos botones pegados que actúan
+   como alternador de formato de copia.
+   ============================================ */
+
 .alternador-copia__boton {
   background-color: #2e2e2e;
   color: #aaaaaa;
@@ -131,27 +141,38 @@ body {
   padding: 6px 14px;
   font-size: 13px;
   cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.alternador-copia__boton:first-of-type {
-  border-radius: 6px 0 0 6px;
-}
+/* Bordes redondeados solo en los extremos del grupo */
+.alternador-copia__boton:first-of-type { border-radius: 6px 0 0 6px; }
+.alternador-copia__boton:last-of-type  { border-radius: 0 6px 6px 0; }
 
-.alternador-copia__boton:last-of-type {
-  border-radius: 0 6px 6px 0;
-}
-
+/* Estado activo HEX (azul) */
 .alternador-copia__boton--activo-hex {
-  background-color: #00bcd4;
+  background-color: var(--color-hex);
   color: #ffffff;
 }
 
+/* Estado activo HSL (rosado) */
 .alternador-copia__boton--activo-hsl {
-  background-color: #e91e8c;
+  background-color: var(--color-hsl);
   color: #ffffff;
 }
 
-/* BOTONES GIRAR Y GUARDAR */
+/* Hover: ligero agrandamiento */
+.alternador-copia__boton:hover {
+  transform: scale(1.08);
+  color: #ffffff;
+}
+
+
+/* ============================================
+   BOTÓN GENERAR PALETA
+   Color naranja vivo para destacarlo como
+   acción principal de la interfaz.
+   ============================================ */
+
 .boton-girar {
   background-color: #ff9800;
   color: #ffffff;
@@ -160,8 +181,18 @@ body {
   padding: 6px 16px;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
+
+.boton-girar:hover {
+  background-color: #e68a00;
+  transform: scale(1.08);
+}
+
+
+/* ============================================
+   BOTÓN GUARDAR PALETA
+   ============================================ */
 
 .boton-guardar {
   background-color: #2e2e2e;
@@ -170,9 +201,21 @@ body {
   padding: 6px 10px;
   font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-/* ÁREA DE RUEDA */
+.boton-guardar:hover {
+  background-color: #04a432;
+  transform: scale(1.08);
+}
+
+
+/* ============================================
+   ÁREA DE RUEDA + LISTA LATERAL
+   Fila horizontal: lista de colores a la izquierda,
+   rueda SVG ocupando el resto del espacio.
+   ============================================ */
+
 .area-rueda {
   display: flex;
   align-items: center;
@@ -180,7 +223,11 @@ body {
   flex: 1;
 }
 
-/* LISTA DE COLORES CON CANDADOS */
+
+/* ============================================
+   LISTA DE COLORES CON CANDADOS
+   ============================================ */
+
 .lista-colores {
   list-style: none;
   display: flex;
@@ -188,6 +235,7 @@ body {
   gap: 8px;
 }
 
+/* Cada ítem: muestra de color + código + candado en fila */
 .lista-colores__item {
   display: flex;
   align-items: center;
@@ -195,21 +243,30 @@ body {
   background-color: #222222;
   padding: 8px 12px;
   border-radius: 8px;
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
 
+/* Hover: aclara y agranda ligeramente el ítem */
+.lista-colores__item:hover {
+  filter: brightness(1.3);
+  transform: scale(1.06);
+}
+
+/* Círculo de muestra del color */
 .lista-colores__muestra {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background-color: #a6d714;
 }
 
+/* Código del color (HEX o HSL) */
 .lista-colores__hex {
   font-size: 13px;
   color: #ffffff;
   flex: 1;
 }
 
+/* Botón candado sin estilos de botón nativo */
 .lista-colores__candado {
   background: none;
   border: none;
@@ -217,7 +274,18 @@ body {
   cursor: pointer;
 }
 
-/* RUEDA SVG */
+/* Ítem seleccionado: agrandado con borde blanco */
+.lista-colores__item--seleccionado {
+  transform: scale(1.08);
+  outline: 2px solid #ffffff;
+}
+
+
+/* ============================================
+   RUEDA SVG
+   ============================================ */
+
+/* Contenedor centrado que ocupa el espacio restante */
 .rueda-contenedor {
   flex: 1;
   display: flex;
@@ -225,12 +293,36 @@ body {
   align-items: center;
 }
 
+/* La rueda se adapta al contenedor con tamaño máximo de 500px */
 .rueda {
   width: min(500px, 100%);
   height: min(500px, 100%);
 }
 
-/* PANEL DE PALETAS GUARDADAS */
+/* Hover en segmentos de la rueda: aclara el color */
+.rueda path,
+.rueda--movil path {
+  transition: filter 0.2s ease;
+}
+
+.rueda path:hover,
+.rueda--movil path:hover {
+  filter: brightness(1.35);
+}
+
+
+/* ============================================
+   PANEL DE PALETAS GUARDADAS (columna derecha)
+   ============================================ */
+
+.panel-guardadas {
+  width: 25%;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* Título del panel en mayúsculas con espaciado */
 .panel-guardadas__titulo {
   font-size: 13px;
   text-transform: uppercase;
@@ -239,7 +331,7 @@ body {
   margin-bottom: 16px;
 }
 
-/* LISTA DE PALETAS GUARDADAS */
+/* Lista de paletas guardadas en columna */
 .lista-guardadas {
   list-style: none;
   display: flex;
@@ -247,12 +339,14 @@ body {
   gap: 12px;
 }
 
+/* Tarjeta de cada paleta guardada */
 .lista-guardadas__item {
   background-color: #222222;
   border-radius: 10px;
   padding: 12px;
 }
 
+/* Encabezado: nombre a la izquierda, botones a la derecha */
 .lista-guardadas__encabezado {
   display: flex;
   align-items: center;
@@ -270,6 +364,7 @@ body {
   gap: 6px;
 }
 
+/* Botones copiar y eliminar de cada paleta */
 .boton-copiar-paleta,
 .boton-eliminar-paleta {
   background-color: #2e2e2e;
@@ -281,20 +376,28 @@ body {
   color: #ffffff;
 }
 
-.boton-copiar-paleta:hover {
-  background-color: #3a3a3a;
-}
+.boton-copiar-paleta:hover  { background-color: #3a3a3a; }
+.boton-eliminar-paleta:hover { background-color: #5a1a1a; }
 
-.boton-eliminar-paleta:hover {
-  background-color: #5a1a1a;
-}
-
-/* MUESTRAS DE COLORES DE LA PALETA GUARDADA */
+/* Barra de muestras de color de la paleta guardada */
 .lista-guardadas__muestras {
   display: flex;
   height: 32px;
   border-radius: 6px;
   overflow: hidden;
+}
+
+/* Hover en cada muestra: aclara y crece verticalmente */
+.lista-guardadas__muestras div {
+  transition: filter 0.2s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.lista-guardadas__muestras div:hover {
+  filter: brightness(1.4);
+  transform: scaleY(1.15);
+  cursor: pointer;
+  z-index: 1;
 }
 
 /* Mensaje cuando no hay paletas guardadas */
@@ -305,22 +408,18 @@ body {
   margin-top: 20px;
 }
 
-/* Item seleccionado en la lista de colores */
-.lista-colores__item--seleccionado {
-  transform: scale(1.08);
-  outline: 2px solid #ffffff;
-  transition: transform 0.2s ease;
-}
 
-/* NOTIFICACIÓN FLOTANTE */
-/* NOTIFICACIÓN FLOTANTE */
+/* ============================================
+   NOTIFICACIÓN FLOTANTE AL COPIAR COLOR
+   Aparece en la esquina inferior derecha (desktop)
+   o desde arriba centrada (móvil).
+   El fondo es el color copiado; el texto usa contraste automático.
+   ============================================ */
+
 .notificacion {
   position: fixed;
   bottom: -80px;
   right: 24px;
-  top: auto;
-  left: auto;
-  transform: none;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -334,29 +433,36 @@ body {
   white-space: nowrap;
 }
 
+/* Estado visible: sube desde abajo */
 .notificacion--visible {
   bottom: 24px;
-  top: auto;
 }
 
+/* Círculo decorativo con el color seleccionado */
 .notificacion__circulo {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
 }
 
+/* Código del color copiado */
 .notificacion__codigo {
   font-size: 15px;
   letter-spacing: 1px;
 }
 
+
 /* ============================================
-   RESPONSIVE MÓVIL
+   RESPONSIVE — MÓVIL (max-width: 768px)
+   En móvil el layout se reorganiza:
+   - Se oculta el layout de escritorio
+   - La rueda ocupa el espacio central
+   - La lista de colores va horizontal con scroll
+   - Los controles van en un menú inferior fijo
    ============================================ */
 
-/* Ocultar elementos móvil en escritorio */
+/* Elementos exclusivos de móvil: ocultos en escritorio */
 .movil-rueda-contenedor,
 .movil-lista-contenedor,
 .menu-movil {
@@ -364,12 +470,13 @@ body {
 }
 
 @media (max-width: 768px) {
-  /* Ocultar layout escritorio */
+
+  /* Ocultar layout de escritorio */
   .pagina__contenido {
     display: none;
   }
 
-  /* Página en columna vertical */
+  /* Página en columna vertical sin padding lateral */
   .pagina {
     padding: 0;
     height: 100vh;
@@ -384,11 +491,10 @@ body {
     letter-spacing: 1px;
     padding: 10px 0 6px;
     margin-bottom: 0;
-    text-align: center;
     flex-shrink: 0;
   }
 
-  /* Rueda ocupa todo el espacio disponible */
+  /* Contenedor de la rueda: ocupa todo el espacio disponible entre lista y menú */
   .movil-rueda-contenedor {
     display: flex;
     flex: 1;
@@ -397,21 +503,22 @@ body {
     padding: 8px;
     min-height: 0;
     width: 100%;
-    align-self: center;
   }
 
+  /* Tamaño de la rueda en móvil: 85% del ancho o 52% del alto */
   .rueda--movil {
     width: min(85vw, 52vh);
     height: min(85vw, 52vh);
   }
 
-  /* Lista horizontal de colores */
+  /* Contenedor de la lista horizontal */
   .movil-lista-contenedor {
     display: block;
     background-color: #1a1a1a;
     flex-shrink: 0;
   }
 
+  /* Lista de colores horizontal con scroll */
   .lista-colores--movil {
     list-style: none;
     display: flex;
@@ -421,6 +528,7 @@ body {
     padding: 8px 12px;
   }
 
+  /* Ítems en columna (muestra arriba, código abajo) */
   .lista-colores--movil .lista-colores__item {
     flex-direction: column;
     align-items: center;
@@ -430,12 +538,14 @@ body {
     flex-shrink: 0;
   }
 
+  /* Muestra circular en móvil */
   .lista-colores--movil .lista-colores__muestra {
     width: 28px;
     height: 28px;
     border-radius: 50%;
   }
 
+  /* Texto más pequeño en móvil */
   .lista-colores--movil .lista-colores__hex {
     font-size: 9px;
     text-align: center;
@@ -445,7 +555,7 @@ body {
     font-size: 11px;
   }
 
-  /* Menú inferior fijo */
+  /* Menú inferior con todos los controles */
   .menu-movil {
     display: flex;
     flex-shrink: 0;
@@ -454,6 +564,7 @@ body {
     padding: 10px 16px;
   }
 
+  /* Fila de controles distribuidos equitativamente */
   .menu-movil__controles {
     display: flex;
     align-items: center;
@@ -462,6 +573,7 @@ body {
     width: 100%;
   }
 
+  /* Selector de cantidad en móvil */
   .barra-controles__selector-movil {
     background-color: #2e2e2e;
     color: #ffffff;
@@ -472,11 +584,7 @@ body {
     cursor: pointer;
   }
 
-  .boton-girar--movil {
-    font-size: 13px;
-    padding: 6px 12px;
-  }
-
+  /* Botón ver paletas guardadas */
   .boton-ver-guardadas {
     background-color: #2e2e2e;
     border: 1px solid #555;
@@ -487,7 +595,27 @@ body {
     color: #ffffff;
   }
 
-  /* MODAL PALETAS GUARDADAS */
+  /* Notificación: en móvil aparece desde arriba centrada */
+  .notificacion {
+    bottom: auto;
+    top: -80px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    transition: top 0.4s ease;
+  }
+
+  .notificacion--visible {
+    top: 16px;
+    bottom: auto;
+  }
+
+  /* ==========================================
+     MODAL DE PALETAS GUARDADAS — MÓVIL
+     Panel deslizable desde abajo con fondo oscuro.
+     ========================================== */
+
+  /* Overlay oscuro de fondo */
   .modal-guardadas {
     display: none;
     position: fixed;
@@ -497,10 +625,12 @@ body {
     align-items: flex-end;
   }
 
+  /* Clase que activa el modal */
   .modal-guardadas--visible {
     display: flex;
   }
 
+  /* Panel deslizable desde abajo con scroll interno */
   .modal-guardadas__contenido {
     background-color: #1a1a1a;
     width: 100%;
@@ -513,6 +643,7 @@ body {
     overflow-y: auto;
   }
 
+  /* Encabezado del modal: título y botón cerrar */
   .modal-guardadas__encabezado {
     display: flex;
     align-items: center;
@@ -527,6 +658,7 @@ body {
     color: #aaaaaa;
   }
 
+  /* Botón circular para cerrar el modal */
   .modal-guardadas__cerrar {
     background: #2e2e2e;
     border: none;
@@ -538,6 +670,7 @@ body {
     cursor: pointer;
   }
 
+  /* Lista de paletas dentro del modal */
   .modal-guardadas__lista {
     list-style: none;
     display: flex;
@@ -545,88 +678,11 @@ body {
     gap: 12px;
   }
 
+  /* Mensaje cuando no hay paletas en el modal */
   .modal-guardadas__vacia {
     font-size: 13px;
     color: #555555;
     text-align: center;
     padding: 20px 0;
   }
-
-  .notificacion {
-    bottom: auto;
-    top: -80px;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    transition: top 0.4s ease;
-  }
-
-  .notificacion--visible {
-    top: 16px;
-    bottom: auto;
-  }
-}
-
-.notificacion__circulo {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.4);
-  flex-shrink: 0;
-}
-
-.notificacion__codigo {
-  font-size: 15px;
-  letter-spacing: 1px;
-}
-}
-
-/* ============================================
-   HOVER DE COLORES
-   ============================================ */
-
-/* Lista de colores izquierda */
-.lista-colores__item:hover {
-  filter: brightness(1.3);
-  transition: filter 0.2s ease;
-  transform: scale(1.06);
-}
-
-/* Muestras de paletas guardadas */
-.lista-guardadas__muestras div:hover {
-  filter: brightness(1.4);
-  cursor: pointer;
-  transform: scale(1.15);
-  transition: transform 0.2s ease-in-out;
-  z-index: 1;
-}
-
-/* Segmentos de la rueda SVG */
-.rueda path:hover {
-  filter: brightness(1.35);
-  transition: filter 0.2s ease;
-}
-
-/* Rueda móvil */
-.rueda--movil path:hover {
-  filter: brightness(1.35);
-  transition: filter 0.2s ease;
-}
-
-.boton-girar:hover {
-  background: #e68a00;
-  transform: scale(1.08);
-  transition: transform 0.2s ease-in-out;
-}
-
-.alternador-copia__boton:hover {
-  transform: scale(1.08);
-  transition: transform 0.2s ease-in-out;
-  color:#ffffff;
-}
-
-.boton-guardar:hover {
-  background: #04a432;
-  transform: scale(1.08);
-  transition: transform 0.2s ease-in-out;  
 }

@@ -2,96 +2,163 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <!-- Asegura que el viewport se ajuste correctamente en dispositivos móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Generador de Paletas Circular</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
+
     <div class="pagina">
+
       <h1 class="pagina__titulo">Generador de Paletas Circular</h1>
 
-      <!-- LAYOUT ESCRITORIO -->
+      <!-- ============================================
+           LAYOUT ESCRITORIO
+           Visible solo en pantallas > 768px.
+           Dividido en sección principal (75%) y panel guardadas (25%).
+           ============================================ -->
       <div class="pagina__contenido">
+
+        <!-- Columna izquierda: controles + rueda + lista -->
         <section class="seccion-principal">
+
+          <!-- Barra de controles: tamaño de paleta, formato y acciones -->
           <div class="barra-controles">
+
+            <!-- Selector de cantidad de colores (6,8 o 9) -->
             <div class="barra-controles__tamano">
               <label class="barra-controles__etiqueta">Tamaño de paleta:</label>
-              <select class="barra-controles__selector">
-                <option value="6" selected>6 colores</option>
+              <select class="barra-controles__selector">               
+                <option value="6" selected>6 colores</option>                
                 <option value="8">8 colores</option>
                 <option value="9">9 colores</option>
               </select>
             </div>
 
+            <!-- Alternador de formato de copia: HEX o HSL -->
             <div class="barra-controles__modo-copia">
               <label class="barra-controles__etiqueta">Formato Color:</label>
               <button
-                class="alternador-copia__boton alternador-copia__boton--activo-hex" title="Cambiar a Hexagesimal">
+                class="alternador-copia__boton alternador-copia__boton--activo-hex"
+                title="Cambiar a Hexadecimal">
                 HEX
               </button>
-              <button class="alternador-copia__boton" title="Cambiar a HSL">HSL</button>
+              <button
+                class="alternador-copia__boton"
+                title="Cambiar a HSL">
+                HSL
+              </button>
             </div>
 
+            <!-- Botones de acción: girar y guardar -->
             <div class="barra-controles__acciones">
-              <button class="boton-girar" class="btn warning" >Generar Paleta</button>
-              <button class="boton-guardar" title="Guardar paleta de Colores">💾</button>
+              <button class="boton-girar">Generar Paleta</button>
+              <button class="boton-guardar" title="Guardar paleta de colores">💾</button>
             </div>
-          </div>
 
+          </div><!-- /barra-controles -->
+
+          <!-- Área principal: lista lateral + rueda SVG -->
           <div class="area-rueda">
+
+            <!-- Lista de colores con candados (generada por JS) -->
             <ul class="lista-colores"></ul>
 
+            <!-- Rueda SVG de escritorio (generada por JS) -->
             <div class="rueda-contenedor">
-              <svg class="rueda" viewBox="-1.1 -1.1 2.2 2.2"></svg>
+              <svg class="rueda" viewBox="-1.1 -1.1 2.2 2.2" aria-label="Rueda de colores"></svg>
             </div>
-          </div>
-        </section>
 
+          </div><!-- /area-rueda -->
+
+        </section><!-- /seccion-principal -->
+
+        <!-- Columna derecha: paletas guardadas (generada por JS) -->
         <aside class="panel-guardadas">
           <h2 class="panel-guardadas__titulo">Paletas Guardadas</h2>
           <ul class="lista-guardadas"></ul>
         </aside>
-      </div>
 
-      <!-- LAYOUT MÓVIL -->
+      </div><!-- /pagina__contenido -->
+
+
+      <!-- ============================================
+           LAYOUT MÓVIL
+           Visible solo en pantallas <= 768px.
+           Rueda centrada + lista horizontal + menú inferior.
+           ============================================ -->
+
+      <!-- Contenedor de la rueda SVG para móvil -->
       <div class="movil-rueda-contenedor">
-        <svg class="rueda rueda--movil" viewBox="-1.1 -1.1 2.2 2.2"></svg>
+        <svg
+          class="rueda rueda--movil"
+          viewBox="-1.1 -1.1 2.2 2.2"
+          aria-label="Rueda de colores">
+        </svg>
       </div>
 
+      <!-- Lista de colores horizontal con scroll para móvil -->
       <div class="movil-lista-contenedor">
         <ul class="lista-colores lista-colores--movil"></ul>
       </div>
 
-      <nav class="menu-movil">
+      <!-- Menú de controles fijo en la parte inferior -->
+      <nav class="menu-movil" aria-label="Controles de paleta">
         <div class="menu-movil__controles">
-          <select class="barra-controles__selector-movil">
-            <option value="6" selected>6</option>
+
+          <!-- Selector de cantidad compacto -->
+          <select class="barra-controles__selector-movil" aria-label="Cantidad de colores">            
+            <option value="6" selected>6</option>            
             <option value="8">8</option>
             <option value="9">9</option>
           </select>
+
+          <!-- Alternador HEX / HSL para móvil -->
           <button
             class="alternador-copia__boton boton-hex-movil alternador-copia__boton--activo-hex"
-          >
+            title="Cambiar a Hexadecimal">
             HEX
           </button>
-          <button class="alternador-copia__boton boton-hsl-movil">HSL</button>
-          <button class="boton-girar boton-girar--movil">Generar Paleta</button>
-          <button class="boton-guardar boton-guardar--movil">💾</button>
-          <button class="boton-ver-guardadas">🎨</button>
-        </div>
-      </nav>
+          <button
+            class="alternador-copia__boton boton-hsl-movil"
+            title="Cambiar a HSL">
+            HSL
+          </button>
 
-      <!-- MODAL PALETAS GUARDADAS MÓVIL -->
-      <div class="modal-guardadas">
+          <!-- Botón generar paleta -->
+          <button class="boton-girar boton-girar--movil">Generar</button>
+
+          <!-- Botón guardar paleta -->
+          <button class="boton-guardar boton-guardar--movil" title="Guardar paleta">💾</button>
+
+          <!-- Botón ver paletas guardadas (abre modal) -->
+          <button class="boton-ver-guardadas" title="Ver paletas guardadas">🎨</button>
+
+        </div>
+      </nav><!-- /menu-movil -->
+
+
+      <!-- ============================================
+           MODAL PALETAS GUARDADAS — MÓVIL
+           Panel que desliza desde abajo con lista de paletas.
+           El overlay oscuro cierra el modal al tocarlo.
+           ============================================ -->
+      <div class="modal-guardadas" role="dialog" aria-modal="true" aria-label="Paletas guardadas">
         <div class="modal-guardadas__contenido">
+
           <div class="modal-guardadas__encabezado">
             <h2 class="modal-guardadas__titulo">Paletas Guardadas</h2>
-            <button class="modal-guardadas__cerrar">✕</button>
+            <button class="modal-guardadas__cerrar" aria-label="Cerrar">✕</button>
           </div>
+
+          <!-- Lista de paletas guardadas (generada por JS) -->
           <ul class="modal-guardadas__lista"></ul>
+
         </div>
-      </div>
-    </div>
+      </div><!-- /modal-guardadas -->
+
+    </div><!-- /pagina -->
 
     <script src="js/script.js"></script>
   </body>
