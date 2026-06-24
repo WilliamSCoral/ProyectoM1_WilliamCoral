@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -7,22 +7,17 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-
     <div class="pagina">
-
       <h1 class="pagina__titulo">Generador de Paletas Circular</h1>
 
+      <!-- LAYOUT ESCRITORIO -->
       <div class="pagina__contenido">
-
         <section class="seccion-principal">
-
-          <!-- BARRA DE CONTROLES -->
           <div class="barra-controles">
-
             <div class="barra-controles__tamano">
               <label class="barra-controles__etiqueta">Tamaño de paleta:</label>
-              <select class="barra-controles__selector">                
-                <option value="6" selected>6 colores</option>                
+              <select class="barra-controles__selector">
+                <option value="6" selected>6 colores</option>
                 <option value="8">8 colores</option>
                 <option value="9">9 colores</option>
               </select>
@@ -30,7 +25,11 @@
 
             <div class="barra-controles__modo-copia">
               <label class="barra-controles__etiqueta">Modo Copiar:</label>
-              <button class="alternador-copia__boton alternador-copia__boton--activo">HEX</button>
+              <button
+                class="alternador-copia__boton alternador-copia__boton--activo-hex"
+              >
+                HEX
+              </button>
               <button class="alternador-copia__boton">HSL</button>
             </div>
 
@@ -38,45 +37,60 @@
               <button class="boton-girar">Girar Rueda</button>
               <button class="boton-guardar">💾</button>
             </div>
-
           </div>
 
-          <!-- ÁREA DE RUEDA + LISTA -->
           <div class="area-rueda">
-
-            <ul class="lista-colores">
-              <li class="lista-colores__item">
-                <div class="lista-colores__muestra"></div>
-                <span class="lista-colores__hex">#A6D714</span>
-                <button class="lista-colores__candado">🔓</button>
-              </li>
-            </ul>
+            <ul class="lista-colores"></ul>
 
             <div class="rueda-contenedor">
               <svg class="rueda" viewBox="-1.1 -1.1 2.2 2.2"></svg>
             </div>
-
           </div>
-
         </section>
 
         <aside class="panel-guardadas">
           <h2 class="panel-guardadas__titulo">Paletas Guardadas</h2>
-
-          <ul class="lista-guardadas">
-            <li class="lista-guardadas__item">
-              <div class="lista-guardadas__encabezado">
-                <span class="lista-guardadas__nombre">Paleta (5 colores)</span>
-                <div class="lista-guardadas__acciones">
-                  <button class="boton-copiar-paleta">📋</button>
-                  <button class="boton-eliminar-paleta">🗑️</button>
-                </div>
-              </div>
-              <div class="lista-guardadas__muestras"></div>
-            </li>
-          </ul>
+          <ul class="lista-guardadas"></ul>
         </aside>
+      </div>
 
+      <!-- LAYOUT MÓVIL -->
+      <div class="movil-rueda-contenedor">
+        <svg class="rueda rueda--movil" viewBox="-1.1 -1.1 2.2 2.2"></svg>
+      </div>
+
+      <div class="movil-lista-contenedor">
+        <ul class="lista-colores lista-colores--movil"></ul>
+      </div>
+
+      <nav class="menu-movil">
+        <div class="menu-movil__controles">
+          <select class="barra-controles__selector-movil">
+            <option value="6" selected>6</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+          </select>
+          <button
+            class="alternador-copia__boton boton-hex-movil alternador-copia__boton--activo-hex"
+          >
+            HEX
+          </button>
+          <button class="alternador-copia__boton boton-hsl-movil">HSL</button>
+          <button class="boton-girar boton-girar--movil">Girar</button>
+          <button class="boton-guardar boton-guardar--movil">💾</button>
+          <button class="boton-ver-guardadas">🎨</button>
+        </div>
+      </nav>
+
+      <!-- MODAL PALETAS GUARDADAS MÓVIL -->
+      <div class="modal-guardadas">
+        <div class="modal-guardadas__contenido">
+          <div class="modal-guardadas__encabezado">
+            <h2 class="modal-guardadas__titulo">Paletas Guardadas</h2>
+            <button class="modal-guardadas__cerrar">✕</button>
+          </div>
+          <ul class="modal-guardadas__lista"></ul>
+        </div>
       </div>
     </div>
 

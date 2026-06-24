@@ -2,32 +2,23 @@
 // VARIABLES GLOBALES
 // ============================================
 
-// Cantidad de colores actual en la paleta
 let cantidadColores = 6;
-
-// Array que guarda los colores actuales
-// Cada color es un objeto con su valor HSL y si está bloqueado
 let coloresActuales = [];
 let colorSeleccionado = -1;
+let formatoCopia = 'hex';
 
-// Formato de copia: 'hex' o 'hsl'
-let formatoCopia = "hex";
-
-// Array que guarda las paletas guardadas
-const guardadas = localStorage.getItem("paletasGuardadas");
+const guardadas = localStorage.getItem('paletasGuardadas');
 let paletasGuardadas = guardadas ? JSON.parse(guardadas) : [];
+
 
 // ============================================
 // FUNCIONES DE COLOR
 // ============================================
 
-// Genera un número aleatorio entre min y max
 function numeroAleatorio(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Genera un color aleatorio en formato HSL
-// HSL = Hue (tono 0-360), Saturation (saturación 0-100), Lightness (luminosidad 0-100)
 function generarColorHSL() {
   const h = numeroAleatorio(0, 360);
   const s = numeroAleatorio(40, 90);
@@ -35,36 +26,26 @@ function generarColorHSL() {
   return { h, s, l };
 }
 
-// Convierte un color HSL a HEX
 function hslAHex(h, s, l) {
   s /= 100;
   l /= 100;
 
-  const k = (n) => (n + h / 30) % 12;
+  const k = n => (n + h / 30) % 12;
   const a = s * Math.min(l, 1 - l);
-  const f = (n) =>
-    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
 
   const r = Math.round(f(0) * 255);
   const g = Math.round(f(8) * 255);
   const b = Math.round(f(4) * 255);
 
-  return (
-    "#" +
-    [r, g, b]
-      .map((v) => v.toString(16).padStart(2, "0"))
-      .join("")
-      .toUpperCase()
-  );
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
-// Genera todos los colores de la paleta
-// Si un color está bloqueado, lo mantiene igual
 function generarPaleta() {
   if (coloresActuales.length === 0) {
     coloresActuales = Array.from({ length: cantidadColores }, () => ({
       hsl: generarColorHSL(),
-      bloqueado: false,
+      bloqueado: false
     }));
     return;
   }
@@ -77,27 +58,25 @@ function generarPaleta() {
     coloresActuales = coloresActuales.slice(0, cantidadColores);
   }
 
-  coloresActuales = coloresActuales.map((color) => {
+  coloresActuales = coloresActuales.map(color => {
     if (color.bloqueado) return color;
     return { hsl: generarColorHSL(), bloqueado: false };
   });
 }
 
+
 // ============================================
 // DIBUJAR RUEDA SVG
 // ============================================
 
-// Convierte coordenadas polares a cartesianas
-// Necesario para calcular los puntos de cada segmento de la rueda
 function polarACartesiano(angulo, radio) {
   const rad = (angulo - 90) * (Math.PI / 180);
   return {
     x: radio * Math.cos(rad),
-    y: radio * Math.sin(rad),
+    y: radio * Math.sin(rad)
   };
 }
 
-// Crea el path SVG de un segmento de la rueda
 function crearSegmento(anguloInicio, anguloFin, radioExterno, radioInterno) {
   const inicio = polarACartesiano(anguloInicio, radioExterno);
   const fin = polarACartesiano(anguloFin, radioExterno);
@@ -111,19 +90,19 @@ function crearSegmento(anguloInicio, anguloFin, radioExterno, radioInterno) {
     `A ${radioExterno} ${radioExterno} 0 ${arcoGrande} 1 ${fin.x} ${fin.y}`,
     `L ${inicioInterno.x} ${inicioInterno.y}`,
     `A ${radioInterno} ${radioInterno} 0 ${arcoGrande} 0 ${finInterno.x} ${finInterno.y}`,
-    "Z",
-  ].join(" ");
+    'Z'
+  ].join(' ');
 }
 
-// Dibuja la rueda completa con todos los colores
 function dibujarRueda() {
-  const svg = document.querySelector(".rueda");
-  svg.innerHTML = "";
+  const svg = document.querySelector('.rueda');
+  svg.innerHTML = '';
 
   const radioExterno = 1.0;
   const radioInterno = 0.25;
   const radioExternoSeleccionado = 1.08;
   const anguloPorColor = 360 / cantidadColores;
+  const fontSize = Math.max(0.04, 0.13 - cantidadColores * 0.01);
 
   coloresActuales.forEach((color, index) => {
     const { h, s, l } = color.hsl;
@@ -133,24 +112,18 @@ function dibujarRueda() {
     const anguloFin = anguloInicio + anguloPorColor;
     const anguloMedio = anguloInicio + anguloPorColor / 2;
 
-    // Si está seleccionado usa radio más grande
-    const radioActual =
-      index === colorSeleccionado ? radioExternoSeleccionado : radioExterno;
+    const radioActual = index === colorSeleccionado
+      ? radioExternoSeleccionado : radioExterno;
 
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute(
-      "d",
-      crearSegmento(anguloInicio, anguloFin, radioActual, radioInterno),
-    );
-    path.setAttribute("fill", `hsl(${h}, ${s}%, ${l}%)`);
-    path.setAttribute("stroke", "#111");
-    path.setAttribute("stroke-width", "0.02");
-    path.style.cursor = "pointer";
-    path.style.transition = "all 0.2s ease";
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', crearSegmento(anguloInicio, anguloFin, radioActual, radioInterno));
+    path.setAttribute('fill', `hsl(${h}, ${s}%, ${l}%)`);
+    path.setAttribute('stroke', '#111');
+    path.setAttribute('stroke-width', '0.02');
+    path.style.cursor = 'pointer';
+    path.style.transition = 'all 0.2s ease';
 
-    // Clic en el segmento
-    path.addEventListener("click", () => {
-      // Si ya estaba seleccionado, deselecciona
+    path.addEventListener('click', () => {
       colorSeleccionado = colorSeleccionado === index ? -1 : index;
       dibujarRueda();
       dibujarListaColores();
@@ -162,84 +135,75 @@ function dibujarRueda() {
     const radioTexto = (radioActual + radioInterno) / 2;
     const posTexto = polarACartesiano(anguloMedio, radioTexto);
 
-    const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    grupo.setAttribute(
-      "transform",
-      `translate(${posTexto.x}, ${posTexto.y}) rotate(${anguloMedio})`,
-    );
+    const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    grupo.setAttribute('transform',
+      `translate(${posTexto.x}, ${posTexto.y}) rotate(${anguloMedio})`);
 
-    const textoColor = document.createElementNS("http://www.w3.org/2000/svg","text",);
-    textoColor.setAttribute("text-anchor", "middle");
-    const fontSize = Math.max(0.04, 0.13 - cantidadColores * 0.01);
-    textoColor.setAttribute("font-size", fontSize.toString());
-    textoColor.setAttribute("font-weight", "bold");
-    textoColor.setAttribute("fill", "#ffffff");
-    textoColor.setAttribute("dy", "0");
-    textoColor.textContent =
-      formatoCopia === "hex" ? hex : `hsl(${h},${s}%,${l}%)`;
+    const textoColor = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textoColor.setAttribute('text-anchor', 'middle');
+    textoColor.setAttribute('font-size', fontSize.toString());
+    textoColor.setAttribute('font-weight', 'bold');
+    textoColor.setAttribute('fill', '#ffffff');
+    textoColor.setAttribute('dy', '0');
+    textoColor.textContent = formatoCopia === 'hex'
+      ? hex : `hsl(${h},${s}%,${l}%)`;
 
     grupo.appendChild(textoColor);
     svg.appendChild(grupo);
-   
   });
 
-  const circulo = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle",
-  );
-  circulo.setAttribute("cx", "0");
-  circulo.setAttribute("cy", "0");
-  circulo.setAttribute("r", radioInterno.toString());
-  circulo.setAttribute("fill", "#111111");
+  const circulo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circulo.setAttribute('cx', '0');
+  circulo.setAttribute('cy', '0');
+  circulo.setAttribute('r', radioInterno.toString());
+  circulo.setAttribute('fill', '#111111');
   svg.appendChild(circulo);
 }
 
+
 // ============================================
-// DIBUJAR LISTA DE COLORES CON CANDADOS
+// DIBUJAR LISTA DE COLORES
 // ============================================
 
 function dibujarListaColores() {
-  const lista = document.querySelector(".lista-colores");
-  lista.innerHTML = "";
+  const lista = document.querySelector('.lista-colores');
+  lista.innerHTML = '';
 
   coloresActuales.forEach((color, index) => {
     const { h, s, l } = color.hsl;
     const hex = hslAHex(h, s, l);
 
-    const item = document.createElement("li");
-    item.classList.add("lista-colores__item");
-    // Cursor pointer para indicar que es clickeable
-    item.style.cursor = "pointer";
+    const item = document.createElement('li');
+    item.classList.add('lista-colores__item');
+    item.style.cursor = 'pointer';
 
     if (index === colorSeleccionado) {
-      item.classList.add("lista-colores__item--seleccionado");
+      item.classList.add('lista-colores__item--seleccionado');
     }
 
-    const muestra = document.createElement("div");
-    muestra.classList.add("lista-colores__muestra");
+    const muestra = document.createElement('div');
+    muestra.classList.add('lista-colores__muestra');
     muestra.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
 
-    const texto = document.createElement("span");
-    texto.classList.add("lista-colores__hex");
-    texto.textContent =
-      formatoCopia === "hex" ? hex : `hsl(${h}, ${s}%, ${l}%)`;
+    const texto = document.createElement('span');
+    texto.classList.add('lista-colores__hex');
+    texto.textContent = formatoCopia === 'hex'
+      ? hex : `hsl(${h}, ${s}%, ${l}%)`;
 
-    const candado = document.createElement("button");
-    candado.classList.add("lista-colores__candado");
-    candado.textContent = color.bloqueado ? "🔒" : "🔓";
+    const candado = document.createElement('button');
+    candado.classList.add('lista-colores__candado');
+    candado.textContent = color.bloqueado ? '🔒' : '🔓';
 
-    // Clic en candado — bloquea o desbloquea
-    candado.addEventListener("click", (e) => {
-      e.stopPropagation(); // Evita que el clic llegue al item
+    candado.addEventListener('click', (e) => {
+      e.stopPropagation();
       coloresActuales[index].bloqueado = !coloresActuales[index].bloqueado;
       dibujarListaColores();
     });
 
-    // Clic en el item — copia el color
-    item.addEventListener("click", () => {
-      colorSeleccionado = colorSeleccionado === index ? -1 : index; // ← agregar esto
-      dibujarRueda(); // ← agregar esto
-      dibujarListaColores(); // ← agregar esto
+    item.addEventListener('click', () => {
+      colorSeleccionado = colorSeleccionado === index ? -1 : index;
+      dibujarRueda();
+      dibujarListaColores();
       copiarColor(h, s, l);
     });
 
@@ -250,107 +214,89 @@ function dibujarListaColores() {
   });
 }
 
+
 // ============================================
-// EVENTOS DE CONTROLES
+// EVENTOS DE CONTROLES ESCRITORIO
 // ============================================
 
-// Referencia al selector de cantidad de colores
-const selectorCantidad = document.querySelector(".barra-controles__selector");
+const selectorCantidad = document.querySelector('.barra-controles__selector');
+const botonGirar = document.querySelector('.boton-girar');
 
-// Referencia al botón girar
-const botonGirar = document.querySelector(".boton-girar");
-
-// Cuando cambia el selector de cantidad de colores
-selectorCantidad.addEventListener("change", () => {
-  // Extrae el número del texto "X colores"
+selectorCantidad.addEventListener('change', () => {
   const nuevaCantidad = parseInt(selectorCantidad.value);
+  const bloqueados = coloresActuales.filter(c => c.bloqueado).length;
 
-  // Cuenta cuántos colores están bloqueados actualmente
-  const bloqueados = coloresActuales.filter((c) => c.bloqueado).length;
-
-  // No permite cambiar a una cantidad menor o igual a los bloqueados
   if (nuevaCantidad <= bloqueados) {
-    alert(
-      `Tienes ${bloqueados} colores bloqueados. Desbloquea algunos antes de reducir la paleta.`,
-    );
-    // Regresa el selector al valor anterior
-    selectorCantidad.value = `${cantidadColores} colores`;
+    alert(`Tienes ${bloqueados} colores bloqueados. Desbloquea algunos antes de reducir la paleta.`);
+    selectorCantidad.value = cantidadColores;
     return;
   }
 
   cantidadColores = nuevaCantidad;
   generarPaleta();
   dibujarRueda();
+  dibujarRuedaMovil();
   dibujarListaColores();
+  dibujarListaColoresMovil();
 });
 
-// Cuando se hace clic en el botón girar
-botonGirar.addEventListener("click", () => {
-  // Cuenta cuántos colores están bloqueados
-  const bloqueados = coloresActuales.filter((c) => c.bloqueado).length;
+botonGirar.addEventListener('click', () => {
+  const bloqueados = coloresActuales.filter(c => c.bloqueado).length;
 
-  // No permite girar si todos los colores están bloqueados
   if (bloqueados === cantidadColores) {
-    alert(
-      "Todos los colores están bloqueados. Desbloquea al menos uno para girar.",
-    );
+    alert('Todos los colores están bloqueados. Desbloquea al menos uno para girar.');
     return;
   }
 
+  colorSeleccionado = -1;
   generarPaleta();
   dibujarRueda();
+  dibujarRuedaMovil();
   dibujarListaColores();
+  dibujarListaColoresMovil();
 });
+
 
 // ============================================
 // PALETAS GUARDADAS
 // ============================================
 
-// Referencia al botón guardar y a la lista de guardadas
-const botonGuardar = document.querySelector(".boton-guardar");
-const listaGuardadas = document.querySelector(".lista-guardadas");
+const botonGuardar = document.querySelector('.boton-guardar');
+const listaGuardadas = document.querySelector('.lista-guardadas');
 
-// Dibuja la lista de paletas guardadas
 function dibujarPaletasGuardadas() {
-  listaGuardadas.innerHTML = "";
+  listaGuardadas.innerHTML = '';
 
   if (paletasGuardadas.length === 0) {
-    listaGuardadas.innerHTML =
-      '<p class="lista-guardadas__vacia">No hay paletas guardadas</p>';
+    listaGuardadas.innerHTML = '<p class="lista-guardadas__vacia">No hay paletas guardadas</p>';
     return;
   }
 
   paletasGuardadas.forEach((paleta, index) => {
-    const item = document.createElement("li");
-    item.classList.add("lista-guardadas__item");
+    const item = document.createElement('li');
+    item.classList.add('lista-guardadas__item');
 
-    // Encabezado con nombre y botones
-    const encabezado = document.createElement("div");
-    encabezado.classList.add("lista-guardadas__encabezado");
+    const encabezado = document.createElement('div');
+    encabezado.classList.add('lista-guardadas__encabezado');
 
-    const nombre = document.createElement("span");
-    nombre.classList.add("lista-guardadas__nombre");
+    const nombre = document.createElement('span');
+    nombre.classList.add('lista-guardadas__nombre');
     nombre.textContent = `Paleta (${paleta.length} colores)`;
 
-    const acciones = document.createElement("div");
-    acciones.classList.add("lista-guardadas__acciones");
+    const acciones = document.createElement('div');
+    acciones.classList.add('lista-guardadas__acciones');
 
-    // Botón copiar
-    const botonCopiar = document.createElement("button");
-    botonCopiar.classList.add("boton-copiar-paleta");
-    botonCopiar.textContent = "📋";
-    botonCopiar.addEventListener("click", () => copiarPaleta(paleta));
+    const botonCopiar = document.createElement('button');
+    botonCopiar.classList.add('boton-copiar-paleta');
+    botonCopiar.textContent = '📋';
+    botonCopiar.addEventListener('click', () => copiarPaleta(paleta));
 
-    // Botón eliminar
-    const botonEliminar = document.createElement("button");
-    botonEliminar.classList.add("boton-eliminar-paleta");
-    botonEliminar.textContent = "🗑️";
-    botonEliminar.addEventListener("click", () => {
+    const botonEliminar = document.createElement('button');
+    botonEliminar.classList.add('boton-eliminar-paleta');
+    botonEliminar.textContent = '🗑️';
+    botonEliminar.addEventListener('click', () => {
       paletasGuardadas.splice(index, 1);
-      localStorage.setItem(
-        "paletasGuardadas",
-        JSON.stringify(paletasGuardadas),
-      );
+      localStorage.setItem('paletasGuardadas', JSON.stringify(paletasGuardadas));
       dibujarPaletasGuardadas();
     });
 
@@ -359,15 +305,14 @@ function dibujarPaletasGuardadas() {
     encabezado.appendChild(nombre);
     encabezado.appendChild(acciones);
 
-    // Muestras de colores
-    const muestras = document.createElement("div");
-    muestras.classList.add("lista-guardadas__muestras");
+    const muestras = document.createElement('div');
+    muestras.classList.add('lista-guardadas__muestras');
 
-    paleta.forEach((color) => {
+    paleta.forEach(color => {
       const { h, s, l } = color.hsl;
-      const muestra = document.createElement("div");
+      const muestra = document.createElement('div');
       muestra.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
-      muestra.style.flex = "1";
+      muestra.style.flex = '1';
       muestras.appendChild(muestra);
     });
 
@@ -377,131 +322,387 @@ function dibujarPaletasGuardadas() {
   });
 }
 
-// Copia los colores de una paleta al portapapeles
 function copiarPaleta(paleta) {
-  const textos = paleta.map((color) => {
+  const textos = paleta.map(color => {
     const { h, s, l } = color.hsl;
-    return formatoCopia === "hex"
+    return formatoCopia === 'hex'
       ? hslAHex(h, s, l)
       : `hsl(${h}, ${s}%, ${l}%)`;
   });
 
-  navigator.clipboard
-    .writeText(textos.join(", "))
-    .then(() => alert("Paleta copiada al portapapeles"))
-    .catch(() => alert("No se pudo copiar"));
+  navigator.clipboard.writeText(textos.join(', '))
+    .then(() => alert('Paleta copiada al portapapeles'))
+    .catch(() => alert('No se pudo copiar'));
 }
 
-// Guarda la paleta actual
-botonGuardar.addEventListener("click", () => {
-  // Guarda una copia profunda de los colores actuales
-  const copia = coloresActuales.map((color) => ({
+botonGuardar.addEventListener('click', () => {
+  const copia = coloresActuales.map(color => ({
     hsl: { ...color.hsl },
-    bloqueado: false,
+    bloqueado: false
   }));
-
   paletasGuardadas.push(copia);
-  localStorage.setItem("paletasGuardadas", JSON.stringify(paletasGuardadas)); // ← agregar
+  localStorage.setItem('paletasGuardadas', JSON.stringify(paletasGuardadas));
   dibujarPaletasGuardadas();
+  dibujarModalGuardadas();
 });
+
 
 // ============================================
 // INTERRUPTOR HEX / HSL
 // ============================================
 
-// Referencias a los botones del alternador
-const botonHex = document.querySelectorAll(".alternador-copia__boton")[0];
-const botonHsl = document.querySelectorAll(".alternador-copia__boton")[1];
+const botonHex = document.querySelectorAll('.alternador-copia__boton')[0];
+const botonHsl = document.querySelectorAll('.alternador-copia__boton')[1];
+const botonHexMovil = document.querySelector('.boton-hex-movil');
+const botonHslMovil = document.querySelector('.boton-hsl-movil');
 
-// Cambia el formato de copia y actualiza la interfaz
-// Reemplaza tu función actual por esta:
 function cambiarFormato(formato) {
   formatoCopia = formato;
 
-  // 1. Manejo de clases en el body para el "tema" global
-  document.body.classList.remove("tema-hex", "tema-hsl");
-  document.body.classList.add(formato === "hex" ? "tema-hex" : "tema-hsl");
+  document.body.classList.remove('tema-hex', 'tema-hsl');
+  document.body.classList.add(formato === 'hex' ? 'tema-hex' : 'tema-hsl');
 
-  // 2. Manejo de botones (tu lógica actual)
-  botonHex.classList.remove(
-    "alternador-copia__boton--activo-hex",
-    "alternador-copia__boton--activo-hsl",
-  );
-  botonHsl.classList.remove(
-    "alternador-copia__boton--activo-hex",
-    "alternador-copia__boton--activo-hsl",
-  );
+  // Escritorio
+  botonHex.classList.remove('alternador-copia__boton--activo-hex', 'alternador-copia__boton--activo-hsl');
+  botonHsl.classList.remove('alternador-copia__boton--activo-hex', 'alternador-copia__boton--activo-hsl');
 
-  if (formato === "hex") {
-    botonHex.classList.add("alternador-copia__boton--activo-hex");
+  // Móvil
+  botonHexMovil?.classList.remove('alternador-copia__boton--activo-hex', 'alternador-copia__boton--activo-hsl');
+  botonHslMovil?.classList.remove('alternador-copia__boton--activo-hex', 'alternador-copia__boton--activo-hsl');
+
+  if (formato === 'hex') {
+    botonHex.classList.add('alternador-copia__boton--activo-hex');
+    botonHexMovil?.classList.add('alternador-copia__boton--activo-hex');
   } else {
-    botonHsl.classList.add("alternador-copia__boton--activo-hsl");
+    botonHsl.classList.add('alternador-copia__boton--activo-hsl');
+    botonHslMovil?.classList.add('alternador-copia__boton--activo-hsl');
   }
 
-  // 3. Refrescar la vista
   dibujarListaColores();
-  // Si tu rueda también debe cambiar de color de resaltado, llama a:
   dibujarRueda();
+  dibujarRuedaMovil();
+  dibujarListaColoresMovil();
 }
 
-// Eventos de los botones
-botonHex.addEventListener("click", () => cambiarFormato("hex"));
-botonHsl.addEventListener("click", () => cambiarFormato("hsl"));
+botonHex.addEventListener('click', () => cambiarFormato('hex'));
+botonHsl.addEventListener('click', () => cambiarFormato('hsl'));
+if (botonHexMovil) botonHexMovil.addEventListener('click', () => cambiarFormato('hex'));
+if (botonHslMovil) botonHslMovil.addEventListener('click', () => cambiarFormato('hsl'));
+
 
 // ============================================
 // NOTIFICACIÓN FLOTANTE
 // ============================================
 
 function mostrarNotificacion(h, s, l, texto) {
-  const anterior = document.querySelector(".notificacion");
+  const anterior = document.querySelector('.notificacion');
   if (anterior) anterior.remove();
 
-  const notificacion = document.createElement("div");
-  notificacion.classList.add("notificacion");
+  const notificacion = document.createElement('div');
+  notificacion.classList.add('notificacion');
 
-  // Círculo con el color
-  const circulo = document.createElement("div");
-  circulo.classList.add("notificacion__circulo");
+  const circulo = document.createElement('div');
+  circulo.classList.add('notificacion__circulo');
   circulo.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
 
-  // Texto del código
-  const codigo = document.createElement("span");
-  codigo.classList.add("notificacion__codigo");
+  const codigo = document.createElement('span');
+  codigo.classList.add('notificacion__codigo');
   codigo.textContent = texto;
 
   notificacion.appendChild(circulo);
   notificacion.appendChild(codigo);
 
-  // Color azul para HEX, rosado para HSL
-  if (formatoCopia === "hex") {
-    notificacion.classList.add("notificacion--hex");
+  if (formatoCopia === 'hex') {
+    notificacion.classList.add('notificacion--hex');
   } else {
-    notificacion.classList.add("notificacion--hsl");
+    notificacion.classList.add('notificacion--hsl');
   }
 
   document.body.appendChild(notificacion);
-  setTimeout(() => notificacion.classList.add("notificacion--visible"), 10);
+  setTimeout(() => notificacion.classList.add('notificacion--visible'), 10);
   setTimeout(() => {
-    notificacion.classList.remove("notificacion--visible");
+    notificacion.classList.remove('notificacion--visible');
     setTimeout(() => notificacion.remove(), 400);
   }, 2500);
 }
 
 function copiarColor(h, s, l) {
-  const texto =
-    formatoCopia === "hex" ? hslAHex(h, s, l) : `hsl(${h}, ${s}%, ${l}%)`;
+  const texto = formatoCopia === 'hex'
+    ? hslAHex(h, s, l)
+    : `hsl(${h}, ${s}%, ${l}%)`;
 
-  const area = document.createElement("textarea");
+  const area = document.createElement('textarea');
   area.value = texto;
-  area.style.position = "fixed";
-  area.style.opacity = "0";
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
   document.body.appendChild(area);
   area.select();
-  document.execCommand("copy");
+  document.execCommand('copy');
   document.body.removeChild(area);
 
   mostrarNotificacion(h, s, l, texto);
 }
+
+
+// ============================================
+// RUEDA Y LISTA MÓVIL
+// ============================================
+
+function dibujarRuedaMovil() {
+  const svg = document.querySelector('.rueda--movil');
+  if (!svg) return;
+
+  svg.innerHTML = '';
+
+  const radioExterno = 1.0;
+  const radioInterno = 0.25;
+  const radioExternoSeleccionado = 1.08;
+  const anguloPorColor = 360 / cantidadColores;
+  const fontSize = Math.max(0.04, 0.13 - cantidadColores * 0.01);
+
+  coloresActuales.forEach((color, index) => {
+    const { h, s, l } = color.hsl;
+    const hex = hslAHex(h, s, l);
+
+    const anguloInicio = index * anguloPorColor;
+    const anguloFin = anguloInicio + anguloPorColor;
+    const anguloMedio = anguloInicio + anguloPorColor / 2;
+
+    const radioActual = index === colorSeleccionado
+      ? radioExternoSeleccionado : radioExterno;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', crearSegmento(anguloInicio, anguloFin, radioActual, radioInterno));
+    path.setAttribute('fill', `hsl(${h}, ${s}%, ${l}%)`);
+    path.setAttribute('stroke', '#111');
+    path.setAttribute('stroke-width', '0.02');
+    path.style.cursor = 'pointer';
+
+    path.addEventListener('click', () => {
+      colorSeleccionado = colorSeleccionado === index ? -1 : index;
+      dibujarRuedaMovil();
+      dibujarListaColoresMovil();
+      copiarColor(h, s, l);
+    });
+
+    svg.appendChild(path);
+
+    const radioTexto = (radioActual + radioInterno) / 2;
+    const posTexto = polarACartesiano(anguloMedio, radioTexto);
+
+    const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    grupo.setAttribute('transform',
+      `translate(${posTexto.x}, ${posTexto.y}) rotate(${anguloMedio})`);
+
+    const textoColor = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textoColor.setAttribute('text-anchor', 'middle');
+    textoColor.setAttribute('font-size', fontSize.toString());
+    textoColor.setAttribute('font-weight', 'bold');
+    textoColor.setAttribute('fill', '#ffffff');
+    textoColor.setAttribute('dy', '0');
+    textoColor.textContent = formatoCopia === 'hex'
+      ? hex : `hsl(${h},${s}%,${l}%)`;
+
+    grupo.appendChild(textoColor);
+    svg.appendChild(grupo);
+  });
+
+  const circulo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circulo.setAttribute('cx', '0');
+  circulo.setAttribute('cy', '0');
+  circulo.setAttribute('r', radioInterno.toString());
+  circulo.setAttribute('fill', '#111111');
+  svg.appendChild(circulo);
+}
+
+function dibujarListaColoresMovil() {
+  const lista = document.querySelector('.lista-colores--movil');
+  if (!lista) return;
+
+  lista.innerHTML = '';
+
+  coloresActuales.forEach((color, index) => {
+    const { h, s, l } = color.hsl;
+    const hex = hslAHex(h, s, l);
+
+    const item = document.createElement('li');
+    item.classList.add('lista-colores__item');
+    item.style.cursor = 'pointer';
+
+    if (index === colorSeleccionado) {
+      item.classList.add('lista-colores__item--seleccionado');
+    }
+
+    const muestra = document.createElement('div');
+    muestra.classList.add('lista-colores__muestra');
+    muestra.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
+
+    const texto = document.createElement('span');
+    texto.classList.add('lista-colores__hex');
+    texto.textContent = formatoCopia === 'hex'
+      ? hex : `hsl(${h}, ${s}%, ${l}%)`;
+
+    const candado = document.createElement('button');
+    candado.classList.add('lista-colores__candado');
+    candado.textContent = color.bloqueado ? '🔒' : '🔓';
+
+    candado.addEventListener('click', (e) => {
+      e.stopPropagation();
+      coloresActuales[index].bloqueado = !coloresActuales[index].bloqueado;
+      dibujarListaColores();
+      dibujarListaColoresMovil();
+    });
+
+    item.addEventListener('click', () => {
+      colorSeleccionado = colorSeleccionado === index ? -1 : index;
+      dibujarRuedaMovil();
+      dibujarListaColoresMovil();
+      copiarColor(h, s, l);
+    });
+
+    item.appendChild(muestra);
+    item.appendChild(texto);
+    item.appendChild(candado);
+    lista.appendChild(item);
+  });
+}
+
+
+// ============================================
+// CONTROLES MÓVIL
+// ============================================
+
+const selectorMovil = document.querySelector('.barra-controles__selector-movil');
+if (selectorMovil) {
+  selectorMovil.addEventListener('change', () => {
+    const nuevaCantidad = parseInt(selectorMovil.value);
+    const bloqueados = coloresActuales.filter(c => c.bloqueado).length;
+
+    if (nuevaCantidad <= bloqueados) {
+      alert(`Tienes ${bloqueados} colores bloqueados. Desbloquea algunos antes de reducir.`);
+      selectorMovil.value = cantidadColores;
+      return;
+    }
+
+    cantidadColores = nuevaCantidad;
+    selectorCantidad.value = cantidadColores;
+    generarPaleta();
+    dibujarRueda();
+    dibujarRuedaMovil();
+    dibujarListaColores();
+    dibujarListaColoresMovil();
+  });
+}
+
+document.querySelector('.boton-girar--movil')?.addEventListener('click', () => {
+  const bloqueados = coloresActuales.filter(c => c.bloqueado).length;
+  if (bloqueados === cantidadColores) {
+    alert('Todos los colores están bloqueados.');
+    return;
+  }
+  colorSeleccionado = -1;
+  generarPaleta();
+  dibujarRueda();
+  dibujarRuedaMovil();
+  dibujarListaColores();
+  dibujarListaColoresMovil();
+});
+
+document.querySelector('.boton-guardar--movil')?.addEventListener('click', () => {
+  const copia = coloresActuales.map(color => ({
+    hsl: { ...color.hsl },
+    bloqueado: false
+  }));
+  paletasGuardadas.push(copia);
+  localStorage.setItem('paletasGuardadas', JSON.stringify(paletasGuardadas));
+  dibujarPaletasGuardadas();
+  dibujarModalGuardadas();
+});
+
+
+// ============================================
+// MODAL PALETAS GUARDADAS MÓVIL
+// ============================================
+
+const modal = document.querySelector('.modal-guardadas');
+const modalLista = document.querySelector('.modal-guardadas__lista');
+const modalCerrar = document.querySelector('.modal-guardadas__cerrar');
+
+function dibujarModalGuardadas() {
+  if (!modalLista) return;
+  modalLista.innerHTML = '';
+
+  if (paletasGuardadas.length === 0) {
+    modalLista.innerHTML = '<p class="modal-guardadas__vacia">No hay paletas guardadas</p>';
+    return;
+  }
+
+  paletasGuardadas.forEach((paleta, index) => {
+    const item = document.createElement('li');
+    item.classList.add('lista-guardadas__item');
+
+    const encabezado = document.createElement('div');
+    encabezado.classList.add('lista-guardadas__encabezado');
+
+    const nombre = document.createElement('span');
+    nombre.classList.add('lista-guardadas__nombre');
+    nombre.textContent = `Paleta (${paleta.length} colores)`;
+
+    const acciones = document.createElement('div');
+    acciones.classList.add('lista-guardadas__acciones');
+
+    const botonCopiar = document.createElement('button');
+    botonCopiar.classList.add('boton-copiar-paleta');
+    botonCopiar.textContent = '📋';
+    botonCopiar.addEventListener('click', () => copiarPaleta(paleta));
+
+    const botonEliminar = document.createElement('button');
+    botonEliminar.classList.add('boton-eliminar-paleta');
+    botonEliminar.textContent = '🗑️';
+    botonEliminar.addEventListener('click', () => {
+      paletasGuardadas.splice(index, 1);
+      localStorage.setItem('paletasGuardadas', JSON.stringify(paletasGuardadas));
+      dibujarPaletasGuardadas();
+      dibujarModalGuardadas();
+    });
+
+    acciones.appendChild(botonCopiar);
+    acciones.appendChild(botonEliminar);
+    encabezado.appendChild(nombre);
+    encabezado.appendChild(acciones);
+
+    const muestras = document.createElement('div');
+    muestras.classList.add('lista-guardadas__muestras');
+
+    paleta.forEach(color => {
+      const { h, s, l } = color.hsl;
+      const muestra = document.createElement('div');
+      muestra.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
+      muestra.style.flex = '1';
+      muestras.appendChild(muestra);
+    });
+
+    item.appendChild(encabezado);
+    item.appendChild(muestras);
+    modalLista.appendChild(item);
+  });
+}
+
+document.querySelector('.boton-ver-guardadas')?.addEventListener('click', () => {
+  dibujarModalGuardadas();
+  modal?.classList.add('modal-guardadas--visible');
+});
+
+modalCerrar?.addEventListener('click', () => {
+  modal?.classList.remove('modal-guardadas--visible');
+});
+
+modal?.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.classList.remove('modal-guardadas--visible');
+  }
+});
+
 
 // ============================================
 // INICIO
@@ -509,7 +710,9 @@ function copiarColor(h, s, l) {
 
 generarPaleta();
 dibujarRueda();
+dibujarRuedaMovil();
 dibujarListaColores();
+dibujarListaColoresMovil();
 dibujarPaletasGuardadas();
-cambiarFormato("hex");
-console.log("Colores generados:", coloresActuales);
+cambiarFormato('hex');
+console.log('Colores generados:', coloresActuales);
